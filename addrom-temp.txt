@@ -1,0 +1,61 @@
+import axios from "axios";
+import { ref } from "vue";
+import router from "../../router";
+
+
+let form = ref({
+  roomFullName: "",
+  roomTypeId: "",
+  placeId: "",
+  roomTitle: "",
+  roomSize: "",
+  roomDetail: "",
+  photo: "",
+});
+
+
+
+const getPhoto = () => {
+  let photo = "/uoload/image.png";
+  if (form.value.photo) {
+    if (form.value.photo.indexOf("base64") != -1) {
+      photo = form.value.photo;
+    } else {
+      photo = "/upload/" + form.value.photo;
+    }
+  }
+  return photo;
+};
+//เลือกรูปภาพ
+const updatePhoto = (e) => {
+  let file = e.target.files[0];
+  let reader = new FileReader();
+  let limit = 1024 * 1024 * 2;
+  if (file["size"] > limit) {
+    return false;
+  }
+  reader.onloadend = (file) => {
+    form.value.photo = reader.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+//INSert 
+const saveData = ()=>{
+    const formData  = new FormData()
+    formData.append('roomFullName',form.value.roomFullName)
+    formData.append('roomTitle',form.value.roomTitle)
+    formData.append('roomTypeId',form.value.roomTypeId)
+    formData.append('placeId',form.value.placeId)
+    formData.append('roomSize',form.value.roomSize)
+    formData.append('roomDetail',form.value.roomDetail)
+    formData.append('thumbnail',form.value.photo)
+
+    axios.post('/api/room/store',FormData)
+    .then((response)=>{
+        form.value('');
+        console.lpg(response);
+    }).catch((error)=>{
+
+    })
+}
